@@ -157,9 +157,8 @@ def initialize():
     start(s, b, l, r, score, b1, paused)
 
 def main():
-    update_score.left = 0
-    update_score.right = 0
     initialize()
+    #todo: Pause, Game over, Quit game, Neural Network, Color Customisation
 
 if __name__ == "__main__":
     main()
