@@ -1,30 +1,15 @@
 import turtle
 #import time
-#import random
+import random
 #import tkinter as tk
 
 FONT = ("Courier", 24, "normal")
 
-def start(s, b, l, r, score, b1, paused):
-    def toggle_pause():
-        nonlocal paused
-        paused = not paused
-        b1.clear()
-        if paused:
-            b1.write("START", align="center", font=FONT)
-            move_ball(s, b, l, r, score, paused)
-            move_paddle(s, l, r, paused)
-        else:
-            b1.write("PAUSE", align="center", font=FONT)
-            move_ball(s, b, l, r, score, paused)
-            move_paddle(s, l, r, paused)
-    b1.onclick(lambda x, y: toggle_pause())
-    s.mainloop()
 
-def draw_screen():
+def draw_screen(choice):
     s = turtle.getscreen()
     s.title("Pong")
-    s.bgcolor("black")
+    s.bgcolor(choice)
     return s
 
 def draw_border():
@@ -49,7 +34,7 @@ def draw_ball():
     b.penup()
     return b
 
-def draw_paddles():
+def draw_paddle():
     l = turtle.Turtle()
     l.color("white")
     l.shape("square")
@@ -75,7 +60,7 @@ def draw_score():
     score.write("Player Left: 0  Player Right: 0", align="center", font=FONT)
     return score
 
-def draw_button(s, b, l, r, score):
+def draw_button():
     b1 = turtle.Turtle()
     b1.fillcolor("")
     b1.shape("square")
@@ -87,77 +72,117 @@ def draw_button(s, b, l, r, score):
     b1.write("START", align="center", font=FONT)
     return b1
 
-def move_ball(s, b, l, r, score, paused):
+def move_ball(s, b, l, r, score, b1):
     b.dx = 8
     b.dy = 8
-    def update_ball(paused):
-        if not paused:
-            b.setx(b.xcor() + b.dx)
-            b.sety(b.ycor() + b.dy)
-            if b.ycor() > 290:
-                b.sety(290)
-                b.dy *= -1
-            if b.ycor() < -290:
-                b.sety(-290)
-                b.dy *= -1
-            if b.xcor() < -340 and l.ycor() - 50 < b.ycor() < l.ycor() + 50:
-                b.setx(-340)
-                b.dx *= -1
-            if b.xcor() > 340 and r.ycor() - 50 < b.ycor() < r.ycor() + 50:
-                b.setx(340)
-                b.dx *= -1
-            if b.xcor() > 390:
-                reset_ball(b)
-                update_score(score, "left")
-            if b.xcor() < -390:
-                reset_ball(b)
-                update_score(score, "right")
-            s.ontimer(update_ball(paused), 20)
-    update_ball(paused)
+    def update_ball():
+        b.setx(b.xcor() + b.dx)
+        b.sety(b.ycor() + b.dy)
+        #if b.ycor() > 290:
+        #    b.sety(290)
+        #    b.dy *= -1
+        #if b.ycor() < -290:
+        #    b.sety(-290)
+        #    b.dy *= -1
+        if abs(b.ycor()) > 290:
+            b.dy *= -1
+        if b.xcor() < -340 and l.ycor() - 50 < b.ycor() < l.ycor() + 50:
+            b.setx(-340)
+            b.dx *= -1
+        if b.xcor() > 340 and r.ycor() - 50 < b.ycor() < r.ycor() + 50:
+            b.setx(340)
+            b.dx *= -1
+        if b.xcor() > 390:
+            reset_ball(b)
+            update_score(score, "left", s, b, l, r, b1)
+        if b.xcor() < -390:
+            reset_ball(b)
+            update_score(score, "right", s, b, l, r, b1)
+        s.ontimer(update_ball, 20)
+    update_ball()
 
-def move_paddle(s, l, r, paused):
+
+      
+
+def listen_paddle(s, l, r):
     s.onkey(lambda: l.sety(l.ycor()+50), "w")
     s.onkey(lambda: l.sety(l.ycor()-50), "s")
     s.onkey(lambda: r.sety(r.ycor()+50), "Up")
     s.onkey(lambda: r.sety(r.ycor()-50), "Down")
     s.listen()
-    def update_paddle(paused):
-        if not paused:
-            if l.ycor() > 250:
-                l.sety(l.ycor()-50)
-            if l.ycor() < -250:
-                l.sety(l.ycor()+50) 
-            if r.ycor() > 250:
-                r.sety(r.ycor()-50)
-            if r.ycor() < -250:
-                r.sety(r.ycor()+50)
-            s.ontimer(update_paddle(paused), 20)
-    update_paddle(paused)  
+    def update_paddle():
+        if l.ycor() > 250:
+            l.sety(l.ycor()-50)
+        if l.ycor() < -250:
+            l.sety(l.ycor()+50) 
+        if r.ycor() > 250:
+            r.sety(r.ycor()-50)
+        if r.ycor() < -250:
+            r.sety(r.ycor()+50)
+        s.ontimer(update_paddle, 20)
+    update_paddle()
 
 def reset_ball(b):
     b.goto(0, 0)
-    b.dx *= -1
+    b.dx *= 1
 
-def update_score(score, player):
+def restart(s, l, r, b1, b, score):
+    score.clear()
+    score.goto(0, 320)
+    score.write("Player Left: 0  Player Right: 0", align="center", font=FONT)
+    update_score.left = 0
+    update_score.right = 0
+    move_ball(s, b, l, r, score, b1)
+
+def game_over(score, player, s, b, l, r, b1):
+    b.dx, b.dy = 0, 0
+    score.clear()
+    score.goto(0, 50)
+    score.write(f"{player} player wins! 'R' to restart.", align="center", font=FONT)
+    s.onkey(lambda: restart(s, l, r, b1, b, score), "r")
+    s.mainloop()
+
+    
+def update_score(score, player, s, b, l, r, b1):
     score.clear()
     if player == "left":
         update_score.left += 1
     elif player == "right":
         update_score.right += 1
     score.write(f"Player Left: {update_score.left} Player Right: {update_score.right}", align="center", font=FONT)
+    if update_score.left == 3 or update_score.right == 3:
+        game_over(score, player, s, b, l, r, b1)
 
-def initialize():
-    paused = True
-    s = draw_screen()
+def initialize(choice):
+    update_score.left = 0
+    update_score.right = 0
+    s = draw_screen(choice)
     draw_border()
     b = draw_ball()
-    l, r = draw_paddles()
     score = draw_score()
-    b1 = draw_button(s, b, l, r, score)
-    start(s, b, l, r, score, b1, paused)
+    l, r = draw_paddle()
+    b1 = draw_button()
+    b1.onclick(lambda x, y: start(s, l, r, b1, b, score))
+    s.mainloop()
+
+def start(s, l, r, b1, b, score):
+    b1.clear()
+    b1.hideturtle()
+    listen_paddle(s, l, r)
+    move_ball(s, b, l, r, score, b1)
+    s.mainloop()
 
 def main():
-    initialize()
+    colors = ["red", "blue", "green", "purple", "orange", "black"]
+    #print(colors)
+    #choice = int(input("Choose a color (0-5): "))
+    #while choice < 0 or choice > 5:
+    #    choice = int(input("Invalid choice. Choose a color (0-5): "))
+    #choice = colors[choice]
+    #initialize(choice)
+    choice = random.choice(colors)
+    initialize(choice)
+
     #todo: Pause, Game over, Quit game, Neural Network, Color Customisation
 
 if __name__ == "__main__":
