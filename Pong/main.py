@@ -5,7 +5,6 @@ import random
 
 FONT = ("Courier", 24, "normal")
 
-
 def draw_screen(choice):
     s = turtle.getscreen()
     s.title("Pong")
@@ -101,9 +100,6 @@ def move_ball(s, b, l, r, score, b1):
         s.ontimer(update_ball, 20)
     update_ball()
 
-
-      
-
 def listen_paddle(s, l, r):
     s.onkey(lambda: l.sety(l.ycor()+50), "w")
     s.onkey(lambda: l.sety(l.ycor()-50), "s")
@@ -141,8 +137,7 @@ def game_over(score, player, s, b, l, r, b1):
     score.write(f"{player} player wins! 'R' to restart.", align="center", font=FONT)
     s.onkey(lambda: restart(s, l, r, b1, b, score), "r")
     s.mainloop()
-
-    
+   
 def update_score(score, player, s, b, l, r, b1):
     score.clear()
     if player == "left":
