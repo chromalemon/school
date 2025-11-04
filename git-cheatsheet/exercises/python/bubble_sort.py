@@ -10,3 +10,5 @@ def bubble_sort(array):
         if not swap:
             break
     return array
+
+#fix haha
